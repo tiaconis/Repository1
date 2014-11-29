@@ -1,68 +1,18 @@
-#!/usr/bin/env php
 
-<!--
+<?php
+# This function reads your DATABASE_URL configuration automatically set by Heroku
+# the return value is a string that will work with pg_connect
+function pg_connection_string() {
+    return "dbname=de3i2cq1h2f7f4 host=ec2-107-20-197-146.compute-1.amazonaws.com port=5432 user=zkhihxyfycdqwh password=2_1RgO1v-ViUlF7M4XuZLYXDM2 sslmode=require";
+}
+ 
+# Establish db connection
+$db = pg_connect(pg_connection_string());
+if (!$db) {
+    echo "Database connection error."
+    exit;
+}
+ 
+$result = pg_query($db, "SELECT statement goes here");
+?>
 
-index.html
-
-Computer Science 50
-Harvard University
-
-A mashup of Google Maps and Google News.
-
--->
-
-<!DOCTYPE html>
-
-<html>
-    <head>
-
-        <!-- http://getbootstrap.com/ -->
-        <link href="/css/bootstrap.min.css" rel="stylesheet"/>
-        <link href="/css/bootstrap-theme.min.css" rel="stylesheet"/>
-
-        <!-- app's own CSS -->
-        <link href="/css/styles.css" rel="stylesheet"/>
-
-        <!-- https://developers.google.com/maps/documentation/javascript/ -->
-        <script src="https://maps.googleapis.com/maps/api/js"></script>
-
-        <!-- http://google-maps-utility-library-v3.googlecode.com/svn/tags/markerwithlabel/1.1.9/ -->
-        <script src="/js/markerwithlabel_packed.js"></script>
-
-        <!-- http://jquery.com/ -->
-        <script src="/js/jquery-1.11.1.min.js"></script>
-
-        <!-- http://getbootstrap.com/ -->
-        <script src="/js/bootstrap.min.js"></script>
-
-        <!-- http://underscorejs.org/ -->
-        <script src="/js/underscore-min.js"></script>
-
-        <!-- https://github.com/twitter/typeahead.js/ -->
-        <script src="/js/typeahead.jquery.js"></script>
-
-        <!-- app's own JavaScript -->
-        <script src="/js/scripts.js"></script>
-
-        <title>Mashup</title>
-
-    </head>
-    <body>
-
-        <!-- fill viewport -->
-        <div class="container-fluid">
-
-            <!-- https://developers.google.com/maps/documentation/javascript/tutorial -->
-            <div id="map-canvas"></div>
-
-            <!-- http://getbootstrap.com/css/#forms -->
-            <form class="form-inline" id="form" role="form">
-                <div class="form-group">
-                    <label class="sr-only" for="q">City, State, Postal Code</label>
-                    <input class="form-control" id="q" placeholder="City, State, Postal Code" type="text"/>
-                </div>
-            </form>
-        </div>
-
-    </body>
-</html>
