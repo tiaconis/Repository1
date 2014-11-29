@@ -1,0 +1,38 @@
+    // get rid of "US" as our dataset is only US, save time not to search on it
+    $newgeo = str_replace(",US", "", $_GET["geo"]);
+    $newgeo = str_ireplace(" US", "", $_GET["geo"]);
+    // trim off end comma if search terms are comma-space separated
+    $newgeo = rtrim($newgeo, ",");
+    
+    // account for comma-separated or space-separated
+    if (strstr($newgeo, ","))
+    {
+        // tolerate comma-space or comma-only
+        $newgeo = str_replace(" ", "", $newgeo);
+        $pieces = explode(",", $newgeo);
+    }
+    else
+    {
+        $pieces = explode(" ", $newgeo);
+    }
+    $count = count($pieces);
+    
+    // search database for matching places, if text only allow it to be city or state or state-abbrev
+    if ($count == 1)
+    {
+        $places_returned = query("SELECT * FROM places WHERE place_name LIKE ? OR admin_name1 LIKE ? OR admin_code1 LIKE ? OR postal_code = ?", $pieces[0].'%', $pieces[0].'%', $pieces[0].'%', $pieces[0]);
+    }
+    else if ($count == 2)
+    {
+        $places_returned = query("SELECT * FROM places WHERE place_name LIKE ? OR admin_name1 LIKE ? OR admin_code1 LIKE ?", $pieces[0].' '.$pieces[1].'%', $pieces[0].' '.$pieces[1].'%', $pieces[0].' '.$pieces[1].'%');
+        
+        if ($places_returned == 0)
+        {
+            $places_returned = query("SELECT * FROM places WHERE (place_name LIKE ? OR admin_name1 LIKE ? OR admin_code1 LIKE ? OR postal_code = ?) AND (place_name LIKE ? OR admin_name1 LIKE ? OR admin_code1 LIKE ? OR postal_code = ?)", $pieces[0].'%', $pieces[0].'%', $pieces[0].'%', $pieces[0], $pieces[1].'%', $pieces[1].'%', $pieces[1].'%', $pieces[1]);
+        }
+    }
+    // only search terms 1 and 3 (ex. Newport News VA or Newport News 23603 or Cambridge MA 02140), assume these are most likely entry formats
+    else if ($count >= 3)
+    {
+        $places_returned = query("SELECT * FROM places WHERE (place_name LIKE ? OR admin_name1 LIKE ? OR admin_code1 LIKE ? OR postal_code = ?) AND (place_name LIKE ? OR admin_name1 LIKE ? OR admin_code1 LIKE ? OR postal_code = ?)", $pieces[0].'%', $pieces[0].'%', $pieces[0].'%', $pieces[0], $pieces[2].'%', $pieces[2].'%', $pieces[2].'%', $pieces[2]);
+    }
